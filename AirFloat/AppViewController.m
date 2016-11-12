@@ -34,7 +34,6 @@
 #import <libairfloat/raopsession.h>
 #import "UIImage+AirFloatAdditions.h"
 #import "AirFloatAppDelegate.h"
-#import "AirFloatAdView.h"
 #import "SupportViewController.h"
 #import "SettingsViewController.h"
 #import "AppViewController.h"
@@ -52,7 +51,6 @@
 @property (nonatomic, strong) IBOutlet UIView *containerView;
 @property (nonatomic, strong) IBOutlet UIButton* supportButton;
 @property (nonatomic, strong) IBOutlet UIButton* settingsButton;
-@property (nonatomic, strong) IBOutlet AirFloatAdView* adView;
 @property (nonatomic, strong) IBOutlet UIView* topView;
 @property (nonatomic, strong) IBOutlet UIView* bottomView;
 @property (nonatomic, strong) IBOutlet UIImageView* artworkImageView;
@@ -141,9 +139,9 @@ void clientEnded(raop_session_p raop_session, void* ctx) {
     
     AppViewController* viewController = (AppViewController*)ctx;
     
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
-        [AirFloatSharedAppDelegate showNotification:@"Client disconnected."];
-    }
+//    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+//        [AirFloatSharedAppDelegate showNotification:@"Client disconnected."];
+//    }
     
     [viewController performSelectorOnMainThread:@selector(clientEnded) withObject:nil waitUntilDone:NO];
     
@@ -212,7 +210,6 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    self.adView = nil;
     self.topView = self.bottomView = nil;
     self.artworkImageView = nil;
     self.trackTitelLabel = self.artistNameLabel = nil;
@@ -236,9 +233,7 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
     
     if (server) {
         raop_server_set_new_session_callback(server, newServerSession, self);
-        [self.adView startAnimation];
-    } else
-        [self.adView stopAnimation];
+    }
     
     _server = server;
     [self didChangeValueForKey:@"server"];
@@ -264,9 +259,6 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
     [super viewDidLoad];
     
     if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone)
-        [self.adView setImages:[NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Images" ofType:@"plist"]]];
-    else
-        [self.adView setImages:[NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Images~ipad" ofType:@"plist"]]];
     
     if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad)
         self.artworkImageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -301,7 +293,6 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
     
     [super viewDidUnload];
     
-    self.adView = nil;
     self.topView = self.bottomView = nil;
     self.artworkImageView = nil;
     self.trackTitelLabel = self.artistNameLabel = nil;
@@ -327,8 +318,6 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
     
     [super viewDidAppear:animated];
     
-    if (self.server)
-        [self.adView startAnimation];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
@@ -511,8 +500,6 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
                          self.artworkImageView.alpha = 1.0;
                      } completion:nil];
     
-    [self.adView stopAnimation];
-    
     self.trackTitelLabel.text = self.artistNameLabel.text = nil;
     
     [self updateControlsAvailability];
@@ -557,8 +544,6 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
                          _albumTitle = nil;
                      }];
     
-    [self.adView startAnimation];
-    
     [self updateNowPlayingInfoCenter];
     
     [self updateScreenIdleState];
@@ -574,12 +559,10 @@ void newServerSession(raop_server_p server, raop_session_p new_session, void* ct
 }
 
 - (void)clientEnded {
-    
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground && backgroundTask > 0) {
-        raop_server_stop(self.server);
-        [self performSelector:@selector(stopBackgroundTask) withObject:nil afterDelay:1.0];
-    }
-    
+//    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground && backgroundTask > 0) {
+//        raop_server_stop(self.server);
+//        [self performSelector:@selector(stopBackgroundTask) withObject:nil afterDelay:1.0];
+//    }
 }
 
 - (void)setAndScaleImage:(UIImage *)image {
